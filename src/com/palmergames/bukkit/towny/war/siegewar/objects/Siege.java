@@ -181,8 +181,6 @@ public class Siege {
 		this.defendingTown = defendingTown;
 	}
 
-
-
 	public Location getFlagLocation() {
 		return siegeBannerLocation;
 	}

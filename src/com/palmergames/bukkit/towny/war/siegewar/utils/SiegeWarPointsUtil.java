@@ -210,12 +210,12 @@ public class SiegeWarPointsUtil {
 			siegePoints = -TownySettings.getWarSiegePointsForAttackerDeath();
 			siegePoints = adjustSiegePenaltyPointsForMilitaryLeadership(residentIsAttacker, siegePoints, player, resident, siege);
 			siegePoints = adjustSiegePointsForPopulationQuotient(false, siegePoints, siege);
-			siege.adjustSiegePoints(siegePoints);
+			evaluateSiegeReachedPointThreshold(siege,siegePoints);
 		} else {
 			siegePoints = TownySettings.getWarSiegePointsForDefenderDeath();
 			siegePoints = adjustSiegePenaltyPointsForMilitaryLeadership(residentIsAttacker, siegePoints, player, resident, siege);
 			siegePoints = adjustSiegePointsForPopulationQuotient(true, siegePoints, siege);
-			siege.adjustSiegePoints(siegePoints);
+			evaluateSiegeReachedPointThreshold(siege,siegePoints);
 		}
 
 		TownyUniverse.getInstance().getDataSource().saveSiege(siege);
@@ -437,5 +437,15 @@ public class SiegeWarPointsUtil {
 
 		double modifier = siege.getSiegePointModifierForSideWithLowestPopulation();
 		return (int) (siegePoints * modifier);
+	}
+
+	public static void evaluateSiegeReachedPointThreshold(Siege siege,int addedSiegePoints){
+		if(TownySettings.getWarSiegePointThresholdEnabled()){
+			int threshold = TownySettings.getWarSiegeMaxPointThresholdValue();
+			int siegePotentialTotal = siege.getSiegePoints() + addedSiegePoints;
+		if (siegePotentialTotal <= -threshold) siege.setSiegePoints(-threshold);
+		if (siegePotentialTotal >= threshold) siege.setSiegePoints(threshold);
+		}
+		siege.adjustSiegePoints(addedSiegePoints);
 	}
 }

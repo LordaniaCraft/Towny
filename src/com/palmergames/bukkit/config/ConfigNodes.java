@@ -1984,8 +1984,16 @@ public enum ConfigNodes {
 			"# The attacking side population consists of the residents of the attacking nation, and allies.",
 			"# The defending side population consists of the residents of the defending town, and nation + allies if applicable.",
 			"# The level of the boost is configured in separate configs. See the scoring section of this file."),
+	WAR_SIEGE_MAX_SIEGE_POINT_THRESHOLD_ENABLED(
+		"war.siege.switches.maximum_point_threshold_enabled",
+		"true",
+		"# If this setting is true, then the enforcement of maximum per side is active."),
+	WAR_SIEGE_MAX_SIEGE_RESIDENT_MAX_TIMED_POINTS_ENABLED(
+		"war.siege.switches.resident_maximum_timed_points_enabled",
+		"false",
+		"# If this setting is true, then the enforcement of maximum per side is active."),	
 
-	//Monetary Values
+		//Monetary Values
 	WAR_SIEGE_ATTACKER_COST_UPFRONT_PER_PLOT(
 			"war.siege.money.attacker_cost_upfront_per_plot",
 			"20.0",
@@ -2181,6 +2189,19 @@ public enum ConfigNodes {
 			"# 2. Assume that a siege attacker greatly outnumbers a siege defender in population. (also counting allies)",
 			"# 3. In this example, if the siege defender scores any siege points, the points will be multiplied by 2.",
 			"# 4. In this example, the siege attacker will not get any points boosts."),
+	WAR_SIEGE_MAX_SIEGE_POINT_THRESHOLD_VALUE(
+		"war.siege.scoring.maximum_point_threshold_per_side",
+		"10000",
+		"# This setting determines the maximum number of points a side can have at any given point."),
+	WAR_SIEGE_MAX_PLAYERS_PER_SIDE_FOR_TIMED_POINTS(
+		"war.siege.scoring.max_players_per_side_for_timed_points",
+		"3",
+		"# This setting determines the maximum number of players at a time, per side, who can score timed siege points.",
+		"# If the value is too high, then too many players may be drawn into siege zone banner occupation.",
+		"# - This takes time from other activities e.g. building, trading.",
+		"# - Also siege-zone occupation can sometimes be boring if one side is avoiding meeting the other in direct combat.",
+		"# If the value is too low, then too few players can be involved in siege zone banner occupation.",
+		"# - Thus, some players in a town, nation, or allies may not be able to contribute as much to wars as they might wish."),
 
 	//Tactical Visibility
 	//Todo - Eventually move this to another location as it works regardless of war system, or without.

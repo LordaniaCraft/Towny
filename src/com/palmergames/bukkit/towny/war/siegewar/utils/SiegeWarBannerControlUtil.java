@@ -16,6 +16,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
+import static com.palmergames.bukkit.towny.war.siegewar.utils.SiegeWarPointsUtil.evaluateSiegeReachedPointThreshold;
+
 /**
  * This class contains utility functions related to banner control
  *
@@ -57,7 +59,8 @@ public class SiegeWarBannerControlUtil {
 					continue; // Player already has a control session
 
 				if(siege.getResidentTotalTimedPointsMap().containsKey(resident)
-					&& siege.getResidentTotalTimedPointsMap().get(resident) > TownySettings.getWarSiegeMaxTimedPointsPerPlayerPerSiege()) {
+					&& siege.getResidentTotalTimedPointsMap().get(resident) > TownySettings.getWarSiegeMaxTimedPointsPerPlayerPerSiege()
+					&& TownySettings.getWarSiegeResidentMaxTimedPointsEnabled()) {
 					TownyMessaging.sendMsg(resident, String.format(TownySettings.getLangString("msg_siege_war_resident_exceeded_max_timed_points"), siege.getDefendingTown().getFormattedName()));
 					continue; //Player has exceeded max timed pts for this siege
 				}
@@ -94,6 +97,10 @@ public class SiegeWarBannerControlUtil {
 
 						if(siege.getBannerControllingSide() == SiegeSide.ATTACKERS && siege.getBannerControllingResidents().contains(resident))
 							continue; //Player already attacking
+
+						if(siege.getBannerControlSessions().size() == TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints()) {
+							continue;
+						}
 
 						addNewBannerControlSession(siege, player, resident, SiegeSide.ATTACKERS);
 						continue;
@@ -227,7 +234,7 @@ public class SiegeWarBannerControlUtil {
 				//Adjust siege points
 				siegePoints = siege.getBannerControllingResidents().size() * TownySettings.getWarSiegePointsForAttackerOccupation();
 				siegePoints = SiegeWarPointsUtil.adjustSiegePointsForPopulationQuotient(true, siegePoints, siege);
-				siege.adjustSiegePoints(siegePoints);
+				evaluateSiegeReachedPointThreshold(siege,siegePoints);
 				siege.increaseResidentTotalTimedPoints(siege.getBannerControllingResidents(), Math.abs(siegePoints));
 				//Pillage
 				double maximumPillageAmount = TownySettings.getWarSiegeMaximumPillageAmountPerPlot() * siege.getDefendingTown().getTownBlocks().size();
@@ -245,7 +252,7 @@ public class SiegeWarBannerControlUtil {
 				//Adjust siege points
 				siegePoints = -(siege.getBannerControllingResidents().size() * TownySettings.getWarSiegePointsForDefenderOccupation());
 				siegePoints = SiegeWarPointsUtil.adjustSiegePointsForPopulationQuotient(false, siegePoints, siege);
-				siege.adjustSiegePoints(siegePoints);
+				evaluateSiegeReachedPointThreshold(siege,siegePoints);
 				siege.increaseResidentTotalTimedPoints(siege.getBannerControllingResidents(), Math.abs(siegePoints));
 				//Save siege zone
 				TownyUniverse.getInstance().getDataSource().saveSiege(siege);

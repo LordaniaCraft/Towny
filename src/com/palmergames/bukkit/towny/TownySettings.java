@@ -3264,4 +3264,21 @@ public class TownySettings {
 	public static double getPlayerHealthRegainLimiterMaxAmountPerShortTick() {
 		return getDouble(ConfigNodes.WAR_COMMON_PLAYER_HEALTH_REGAIN_LIMITER_MAX_AMOUNT_PER_SHORT_TICK);
 	}
+	
+	public static boolean getWarSiegePointThresholdEnabled(){
+		return getBoolean(ConfigNodes.WAR_SIEGE_MAX_SIEGE_POINT_THRESHOLD_ENABLED);
+	}
+
+	public static int getWarSiegeMaxPointThresholdValue(){
+		return getInt(ConfigNodes.WAR_SIEGE_MAX_SIEGE_POINT_THRESHOLD_VALUE);
+	}
+
+	public static boolean getWarSiegeResidentMaxTimedPointsEnabled(){
+		return getBoolean(ConfigNodes.WAR_SIEGE_MAX_SIEGE_POINT_THRESHOLD_ENABLED);
+	}
+	
+	public static int getWarSiegeMaxPlayersPerSideForTimedPoints() {
+		return getInt(ConfigNodes.WAR_SIEGE_MAX_PLAYERS_PER_SIDE_FOR_TIMED_POINTS);
+	}
+	
 }
