@@ -1988,7 +1988,7 @@ public enum ConfigNodes {
 		"war.siege.switches.maximum_point_threshold_enabled",
 		"true",
 		"# If this setting is true, then the enforcement of maximum per side is active."),
-	WAR_SIEGE_MAX_SIEGE_RESIDENT_MAX_TIMED_POINTS_ENABLED(
+	WAR_SIEGE_RESIDENT_MAX_TIMED_POINTS_ENABLED(
 		"war.siege.switches.resident_maximum_timed_points_enabled",
 		"false",
 		"# If this setting is true, then the enforcement of maximum per side is active."),	

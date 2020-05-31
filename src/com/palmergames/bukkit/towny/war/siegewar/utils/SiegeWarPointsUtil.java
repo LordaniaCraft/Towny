@@ -18,6 +18,8 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.bukkit.Bukkit.getLogger;
+
 /**
  * This class contains utility functions related to siege points
  * 
@@ -56,6 +58,9 @@ public class SiegeWarPointsUtil {
 	 * @return true if a player in in the timed point zone
 	 */
 	public static boolean isPlayerInTimedPointZone(Player player, Siege siege) {
+//		if (player.getLocation().getWorld() == siege.getFlagLocation().getWorld()) getLogger().info("is at flag");
+//		if (!TownyAPI.getInstance().hasTownBlock(player.getLocation())) getLogger().info(" not in a town block");
+//		if (player.getLocation().distance(siege.getFlagLocation()) < TownySettings.getTownBlockSize()) getLogger().info("is in range of town ");
 		return player.getLocation().getWorld() == siege.getFlagLocation().getWorld()
 				&& !TownyAPI.getInstance().hasTownBlock(player.getLocation())
 				&& player.getLocation().distance(siege.getFlagLocation()) < TownySettings.getTownBlockSize();
@@ -210,12 +215,12 @@ public class SiegeWarPointsUtil {
 			siegePoints = -TownySettings.getWarSiegePointsForAttackerDeath();
 			siegePoints = adjustSiegePenaltyPointsForMilitaryLeadership(residentIsAttacker, siegePoints, player, resident, siege);
 			siegePoints = adjustSiegePointsForPopulationQuotient(false, siegePoints, siege);
-			evaluateSiegeReachedPointThreshold(siege,siegePoints);
+			hasSiegeReachedPointThreshold(siege,siegePoints);
 		} else {
 			siegePoints = TownySettings.getWarSiegePointsForDefenderDeath();
 			siegePoints = adjustSiegePenaltyPointsForMilitaryLeadership(residentIsAttacker, siegePoints, player, resident, siege);
 			siegePoints = adjustSiegePointsForPopulationQuotient(true, siegePoints, siege);
-			evaluateSiegeReachedPointThreshold(siege,siegePoints);
+			hasSiegeReachedPointThreshold(siege,siegePoints);
 		}
 
 		TownyUniverse.getInstance().getDataSource().saveSiege(siege);
@@ -439,13 +444,21 @@ public class SiegeWarPointsUtil {
 		return (int) (siegePoints * modifier);
 	}
 
-	public static void evaluateSiegeReachedPointThreshold(Siege siege,int addedSiegePoints){
-		if(TownySettings.getWarSiegePointThresholdEnabled()){
+	public static boolean hasSiegeReachedPointThreshold(Siege siege,int addedSiegePoints){
+		if (TownySettings.getWarSiegePointThresholdEnabled()) {
 			int threshold = TownySettings.getWarSiegeMaxPointThresholdValue();
 			int siegePotentialTotal = siege.getSiegePoints() + addedSiegePoints;
-		if (siegePotentialTotal <= -threshold) siege.setSiegePoints(-threshold);
-		if (siegePotentialTotal >= threshold) siege.setSiegePoints(threshold);
+//			getLogger().info( "Potential total points " + siegePotentialTotal);
+			if (siegePotentialTotal <= -threshold) {
+				siege.setSiegePoints(-threshold);
+				return true;
+			}
+			if (siegePotentialTotal >= threshold) {
+				siege.setSiegePoints(threshold);
+				return true;
+			}
 		}
 		siege.adjustSiegePoints(addedSiegePoints);
+		return false;
 	}
 }

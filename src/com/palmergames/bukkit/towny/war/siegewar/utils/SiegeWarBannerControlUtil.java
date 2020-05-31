@@ -16,7 +16,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 
-import static com.palmergames.bukkit.towny.war.siegewar.utils.SiegeWarPointsUtil.evaluateSiegeReachedPointThreshold;
+import static com.palmergames.bukkit.towny.war.siegewar.utils.SiegeWarPointsUtil.hasSiegeReachedPointThreshold;
+import static org.bukkit.Bukkit.getLogger;
 
 /**
  * This class contains utility functions related to banner control
@@ -52,27 +53,42 @@ public class SiegeWarBannerControlUtil {
 			for(Player player: Bukkit.getOnlinePlayers()) {
 
 				resident = universe.getDataSource().getResident(player.getName());
-				if(!doesPlayerMeetBasicSessionRequirements(siege, player, resident))
+				if(!doesPlayerMeetBasicSessionRequirements(siege, player, resident)) {
+//					getLogger().info("cant capture");
 					continue;
-
-				if(siege.getBannerControlSessions().containsKey(player))
-					continue; // Player already has a control session
-
-				if(siege.getResidentTotalTimedPointsMap().containsKey(resident)
-					&& siege.getResidentTotalTimedPointsMap().get(resident) > TownySettings.getWarSiegeMaxTimedPointsPerPlayerPerSiege()
-					&& TownySettings.getWarSiegeResidentMaxTimedPointsEnabled()) {
-					TownyMessaging.sendMsg(resident, String.format(TownySettings.getLangString("msg_siege_war_resident_exceeded_max_timed_points"), siege.getDefendingTown().getFormattedName()));
-					continue; //Player has exceeded max timed pts for this siege
 				}
 
+				if(siege.getBannerControlSessions().containsKey(player)) {
+//					getLogger().info("already has control session");
+					continue; // Player already has a control session
+					}
+
+				if (TownySettings.getWarSiegeResidentMaxTimedPointsEnabled()) {
+					if (siege.getResidentTotalTimedPointsMap().containsKey(resident)
+						&& siege.getResidentTotalTimedPointsMap().get(resident) > TownySettings.getWarSiegeMaxTimedPointsPerPlayerPerSiege()) {
+						TownyMessaging.sendMsg(resident, String.format(TownySettings.getLangString("msg_siege_war_resident_exceeded_max_timed_points"), siege.getDefendingTown().getFormattedName()));
+						continue; //Player has exceeded max timed pts for this siege
+					}
+				}
+				
+//				getLogger().info("can capture");
 				residentTown = resident.getTown();
 				if(residentTown == siege.getDefendingTown()
 					&& universe.getPermissionSource().has(resident, PermissionNodes.TOWNY_TOWN_SIEGE_POINTS)) {
 					//Player is defending their own town
 
-					if(siege.getBannerControllingSide() == SiegeSide.DEFENDERS && siege.getBannerControllingResidents().contains(resident))
+					if(siege.getBannerControllingSide() == SiegeSide.DEFENDERS && siege.getBannerControllingResidents().contains(resident)) {
+//						getLogger().info("already defending");
 						continue; //Player already defending
-
+					}
+					getLogger().info("banner controle sessions: " + siege.getBannerControlSessions().size());
+					getLogger().info("banner controle sessions setting: " + TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints());
+					if(siege.getBannerControlSessions().size() == TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints()) {
+						TownyMessaging.sendMsg(resident,"Maximum number of defenders reached");
+//						getLogger().info("max deffenders");
+						continue;
+					}
+//					getLogger().info("can defend");
 					addNewBannerControlSession(siege, player, resident, SiegeSide.DEFENDERS);
 					continue;
 
@@ -84,27 +100,45 @@ public class SiegeWarBannerControlUtil {
 							|| defendingTown.getNation().hasMutualAlly(residentTown.getNation()))) {
 						//Player is defending another town in the nation
 
-						if(siege.getBannerControllingSide() == SiegeSide.DEFENDERS && siege.getBannerControllingResidents().contains(resident))
+						if(siege.getBannerControllingSide() == SiegeSide.DEFENDERS && siege.getBannerControllingResidents().contains(resident)) {
+//							getLogger().info("already defending another town");
 							continue; //Player already defending
+						}
 
+						getLogger().info("banner controle sessions: " + siege.getBannerControlSessions().size());
+						getLogger().info("banner controle sessions setting: " + TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints());
+						if(siege.getBannerControlSessions().size() == TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints()) {
+							TownyMessaging.sendMsg(resident,"Maximum number of defenders reached");
+							//							getLogger().info("max defenders");
+							continue;
+						}
+//						getLogger().info("can defend another town");						
 						addNewBannerControlSession(siege, player, resident, SiegeSide.DEFENDERS);
 						continue;
 					}
 
 					if (siege.getAttackingNation() == residentTown.getNation()
 							|| siege.getAttackingNation().hasMutualAlly(residentTown.getNation())) {
+//						getLogger().info("attacking");
 						//Player is attacking
 
-						if(siege.getBannerControllingSide() == SiegeSide.ATTACKERS && siege.getBannerControllingResidents().contains(resident))
+						if(siege.getBannerControllingSide() == SiegeSide.ATTACKERS && siege.getBannerControllingResidents().contains(resident)) {
+//							getLogger().info("player already attacking");
 							continue; //Player already attacking
-
-						if(siege.getBannerControlSessions().size() == TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints()) {
-							continue;
 						}
 
+						getLogger().info("banner controle sessions: " + siege.getBannerControlSessions().size());
+						getLogger().info("banner controle sessions setting: " + TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints());
+						if(siege.getBannerControlSessions().size() == TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints()) {
+							TownyMessaging.sendMsg(resident,"Maximum number of attacker reached");
+//							getLogger().info("max attackers");
+							continue;
+						}
+//						getLogger().info("can attack");
 						addNewBannerControlSession(siege, player, resident, SiegeSide.ATTACKERS);
 						continue;
 					}
+//					getLogger().info("cant attack");
 				}
 			}
 		} catch (Exception e) {
@@ -150,27 +184,34 @@ public class SiegeWarBannerControlUtil {
 	}
 
 	private static boolean doesPlayerMeetBasicSessionRequirements(Siege siege, Player player, Resident resident) throws Exception {
-		if (!resident.hasTown())
+		if (!resident.hasTown()) {
+//			getLogger().info("nomad");
 			return false; //Player is a nomad
-
-		if(resident.getTown().isOccupied())
+		}
+		if(resident.getTown().isOccupied()) {
+//			getLogger().info("ocucupied");
 			return false; // Player is from occupied town
-
-		if(player.isDead())
+		}
+		if(player.isDead()) {
+//			getLogger().info("dead");
 			return false; // Player is dead
-
-		if(!player.isOnline())
+		}
+		if(!player.isOnline()) {
+//			getLogger().info("offline");
 			return false; // Player offline
-
-		if(player.isFlying() || player.getPotionEffect(PotionEffectType.INVISIBILITY) != null)
+		}
+		if(player.isFlying() || player.getPotionEffect(PotionEffectType.INVISIBILITY) != null) {
+//			getLogger().info("flying or invis");
 			return false;   // Player is flying or invisible
-
-		if(!SiegeWarPointsUtil.isPlayerInTimedPointZone(player, siege))
+		}
+		if(!SiegeWarPointsUtil.isPlayerInTimedPointZone(player, siege)) {
+//			getLogger().info("not in zone");
 			return false; //player is not in the timed point zone
-
-		if(SiegeWarBlockUtil.doesPlayerHaveANonAirBlockAboveThem(player))
+		}
+		if(SiegeWarBlockUtil.doesPlayerHaveANonAirBlockAboveThem(player)) {
+//			getLogger().info("under a block");
 			return false; //Player is under a block
-
+		}
 		return true;
 	}
 
@@ -232,10 +273,13 @@ public class SiegeWarBannerControlUtil {
 		switch(siege.getBannerControllingSide()) {
 			case ATTACKERS:
 				//Adjust siege points
+//				getLogger().info("given attacker points");
 				siegePoints = siege.getBannerControllingResidents().size() * TownySettings.getWarSiegePointsForAttackerOccupation();
 				siegePoints = SiegeWarPointsUtil.adjustSiegePointsForPopulationQuotient(true, siegePoints, siege);
-				evaluateSiegeReachedPointThreshold(siege,siegePoints);
-				siege.increaseResidentTotalTimedPoints(siege.getBannerControllingResidents(), Math.abs(siegePoints));
+				hasSiegeReachedPointThreshold(siege,siegePoints);
+				if (TownySettings.getWarSiegeResidentMaxTimedPointsEnabled()) {
+					siege.increaseResidentTotalTimedPoints(siege.getBannerControllingResidents(), Math.abs(siegePoints));
+				}
 				//Pillage
 				double maximumPillageAmount = TownySettings.getWarSiegeMaximumPillageAmountPerPlot() * siege.getDefendingTown().getTownBlocks().size();
 				if(TownySettings.getWarSiegePillagingEnabled()
@@ -249,11 +293,14 @@ public class SiegeWarBannerControlUtil {
 				TownyUniverse.getInstance().getDataSource().saveSiege(siege);
 			break;
 			case DEFENDERS:
+//				getLogger().info("given defender points");
 				//Adjust siege points
 				siegePoints = -(siege.getBannerControllingResidents().size() * TownySettings.getWarSiegePointsForDefenderOccupation());
 				siegePoints = SiegeWarPointsUtil.adjustSiegePointsForPopulationQuotient(false, siegePoints, siege);
-				evaluateSiegeReachedPointThreshold(siege,siegePoints);
-				siege.increaseResidentTotalTimedPoints(siege.getBannerControllingResidents(), Math.abs(siegePoints));
+				hasSiegeReachedPointThreshold(siege,siegePoints);
+				if (TownySettings.getWarSiegeResidentMaxTimedPointsEnabled()) {
+					siege.increaseResidentTotalTimedPoints(siege.getBannerControllingResidents(), Math.abs(siegePoints));
+				}
 				//Save siege zone
 				TownyUniverse.getInstance().getDataSource().saveSiege(siege);
 			break;
@@ -262,15 +309,17 @@ public class SiegeWarBannerControlUtil {
 		}
 
 		//Check if any residents have exceeded max timed pts/player
-		for(Resident resident: siege.getBannerControllingResidents()) {
-			if(siege.getResidentTotalTimedPointsMap().containsKey(resident)
-				&& siege.getResidentTotalTimedPointsMap().get(resident) > TownySettings.getWarSiegeMaxTimedPointsPerPlayerPerSiege()) {
-				//Resident has exceeded max timed pts/player. Remove from banner control
-				siege.removeBannerControllingResident(resident);
-				TownyMessaging.sendMsg(resident, String.format(TownySettings.getLangString("msg_siege_war_resident_exceeded_max_timed_points"), siege.getDefendingTown().getFormattedName()));
+		if (TownySettings.getWarSiegeResidentMaxTimedPointsEnabled()) {
+			for (Resident resident : siege.getBannerControllingResidents()) {
+				if (siege.getResidentTotalTimedPointsMap().containsKey(resident)
+					&& siege.getResidentTotalTimedPointsMap().get(resident) > TownySettings.getWarSiegeMaxTimedPointsPerPlayerPerSiege()) {
+					//Resident has exceeded max timed pts/player. Remove from banner control
+					siege.removeBannerControllingResident(resident);
+					TownyMessaging.sendMsg(resident, String.format(TownySettings.getLangString("msg_siege_war_resident_exceeded_max_timed_points"), siege.getDefendingTown().getFormattedName()));
+				}
 			}
 		}
-
+		
 		//Remove banner control if 
 		//1. All players on the list are logged out, or
 		//2. The list is now empty

@@ -3274,7 +3274,7 @@ public class TownySettings {
 	}
 
 	public static boolean getWarSiegeResidentMaxTimedPointsEnabled(){
-		return getBoolean(ConfigNodes.WAR_SIEGE_MAX_SIEGE_POINT_THRESHOLD_ENABLED);
+		return getBoolean(ConfigNodes.WAR_SIEGE_RESIDENT_MAX_TIMED_POINTS_ENABLED);
 	}
 	
 	public static int getWarSiegeMaxPlayersPerSideForTimedPoints() {
