@@ -54,12 +54,10 @@ public class SiegeWarBannerControlUtil {
 
 				resident = universe.getDataSource().getResident(player.getName());
 				if(!doesPlayerMeetBasicSessionRequirements(siege, player, resident)) {
-//					getLogger().info("cant capture");
 					continue;
 				}
 
 				if(siege.getBannerControlSessions().containsKey(player)) {
-//					getLogger().info("already has control session");
 					continue; // Player already has a control session
 					}
 
@@ -70,25 +68,17 @@ public class SiegeWarBannerControlUtil {
 						continue; //Player has exceeded max timed pts for this siege
 					}
 				}
-				
-//				getLogger().info("can capture");
+
 				residentTown = resident.getTown();
 				if(residentTown == siege.getDefendingTown()
 					&& universe.getPermissionSource().has(resident, PermissionNodes.TOWNY_TOWN_SIEGE_POINTS)) {
 					//Player is defending their own town
 
 					if(siege.getBannerControllingSide() == SiegeSide.DEFENDERS && siege.getBannerControllingResidents().contains(resident)) {
-//						getLogger().info("already defending");
 						continue; //Player already defending
 					}
-					getLogger().info("banner controle sessions: " + siege.getBannerControlSessions().size());
+					getLogger().info("total banner control: " + (siege.getBannerControllingResidents().size() + siege.getBannerControlSessions().size()));
 					getLogger().info("banner controle sessions setting: " + TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints());
-					if(siege.getBannerControlSessions().size() == TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints()) {
-						TownyMessaging.sendMsg(resident,"Maximum number of defenders reached");
-//						getLogger().info("max deffenders");
-						continue;
-					}
-//					getLogger().info("can defend");
 					addNewBannerControlSession(siege, player, resident, SiegeSide.DEFENDERS);
 					continue;
 
@@ -101,44 +91,28 @@ public class SiegeWarBannerControlUtil {
 						//Player is defending another town in the nation
 
 						if(siege.getBannerControllingSide() == SiegeSide.DEFENDERS && siege.getBannerControllingResidents().contains(resident)) {
-//							getLogger().info("already defending another town");
 							continue; //Player already defending
 						}
 
-						getLogger().info("banner controle sessions: " + siege.getBannerControlSessions().size());
+						getLogger().info("total banner control: " + (siege.getBannerControllingResidents().size() + siege.getBannerControlSessions().size()));
 						getLogger().info("banner controle sessions setting: " + TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints());
-						if(siege.getBannerControlSessions().size() == TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints()) {
-							TownyMessaging.sendMsg(resident,"Maximum number of defenders reached");
-							//							getLogger().info("max defenders");
-							continue;
-						}
-//						getLogger().info("can defend another town");						
 						addNewBannerControlSession(siege, player, resident, SiegeSide.DEFENDERS);
 						continue;
 					}
 
 					if (siege.getAttackingNation() == residentTown.getNation()
 							|| siege.getAttackingNation().hasMutualAlly(residentTown.getNation())) {
-//						getLogger().info("attacking");
 						//Player is attacking
 
 						if(siege.getBannerControllingSide() == SiegeSide.ATTACKERS && siege.getBannerControllingResidents().contains(resident)) {
-//							getLogger().info("player already attacking");
 							continue; //Player already attacking
 						}
 
-						getLogger().info("banner controle sessions: " + siege.getBannerControlSessions().size());
-						getLogger().info("banner controle sessions setting: " + TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints());
-						if(siege.getBannerControlSessions().size() == TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints()) {
-							TownyMessaging.sendMsg(resident,"Maximum number of attacker reached");
-//							getLogger().info("max attackers");
-							continue;
-						}
-//						getLogger().info("can attack");
+						getLogger().info("total banner control: " + (siege.getBannerControllingResidents().size() + siege.getBannerControlSessions().size()));
+						getLogger().info("banner control sessions setting: " + TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints());
 						addNewBannerControlSession(siege, player, resident, SiegeSide.ATTACKERS);
 						continue;
 					}
-//					getLogger().info("cant attack");
 				}
 			}
 		} catch (Exception e) {
@@ -148,6 +122,12 @@ public class SiegeWarBannerControlUtil {
 	}
 
 	private static void addNewBannerControlSession(Siege siege, Player player, Resident resident, SiegeSide siegeSide) {
+		//check if can add session
+		if((siege.getBannerControllingResidents().size() + siege.getBannerControlSessions().size()) >= TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints()
+			&& siege.getBannerControllingSide() == siegeSide) {
+			TownyMessaging.sendMsg(resident,"Maximum number of banner controllers for your side reached");
+			return;
+		}
 		//Add session
 		int sessionDurationMillis = (int)(TownySettings.getWarSiegeBannerControlSessionDurationMinutes() * TimeMgmt.ONE_MINUTE_IN_MILLIS);
 		long sessionEndTime = System.currentTimeMillis() + sessionDurationMillis;
@@ -219,12 +199,19 @@ public class SiegeWarBannerControlUtil {
 		for(BannerControlSession bannerControlSession: siege.getBannerControlSessions().values()) {
 			try {
 				//Check if session failed
+				// added check for max number of controller
 				if (!doesPlayerMeetBasicSessionRequirements(siege, bannerControlSession.getPlayer(), bannerControlSession.getResident())) {
 					siege.removeBannerControlSession(bannerControlSession);
 					TownyMessaging.sendMsg(bannerControlSession.getPlayer(), TownySettings.getLangString("msg_siege_war_banner_control_session_failure"));
 					continue;
 				}
 
+				if( siege.getBannerControllingResidents().size() == TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints() 
+					&& bannerControlSession.getSiegeSide() == siege.getBannerControllingSide()){
+					TownyMessaging.sendMsg(bannerControlSession.getResident(),"Maximum number of banner controllers for your side reached");
+				continue;
+				}
+				
 				//Check if session succeeded
 				if(System.currentTimeMillis() > bannerControlSession.getSessionEndTime()) {
 					siege.removeBannerControlSession(bannerControlSession);
