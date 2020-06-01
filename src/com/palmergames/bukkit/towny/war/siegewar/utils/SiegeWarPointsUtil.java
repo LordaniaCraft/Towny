@@ -209,21 +209,35 @@ public class SiegeWarPointsUtil {
 		if(!isPlayerInDeathPointZone(player, resident, siege))
 			return false;
 
+		TownyUniverse universe = TownyUniverse.getInstance();
+		
 		//Give siege points to opposing side
 		int siegePoints;
 		if (residentIsAttacker) {
 			siegePoints = -TownySettings.getWarSiegePointsForAttackerDeath();
 			siegePoints = adjustSiegePenaltyPointsForMilitaryLeadership(residentIsAttacker, siegePoints, player, resident, siege);
 			siegePoints = adjustSiegePointsForPopulationQuotient(false, siegePoints, siege);
+			// if dead player is pleb give half points
+			if (!universe.getPermissionSource().has(resident, PermissionNodes.TOWNY_TOWN_SIEGE_POINTS)
+			|| !universe.getPermissionSource().has(resident, PermissionNodes.TOWNY_NATION_SIEGE_POINTS)
+			) {
+				siegePoints = siegePoints / 2;
+			}
 			hasSiegeReachedPointThreshold(siege,siegePoints);
 		} else {
 			siegePoints = TownySettings.getWarSiegePointsForDefenderDeath();
 			siegePoints = adjustSiegePenaltyPointsForMilitaryLeadership(residentIsAttacker, siegePoints, player, resident, siege);
 			siegePoints = adjustSiegePointsForPopulationQuotient(true, siegePoints, siege);
+			// if dead player is pleb give half points
+			if (!universe.getPermissionSource().has(resident, PermissionNodes.TOWNY_TOWN_SIEGE_POINTS)
+				|| !universe.getPermissionSource().has(resident, PermissionNodes.TOWNY_NATION_SIEGE_POINTS)
+			) {
+				siegePoints = siegePoints / 2;
+			}
 			hasSiegeReachedPointThreshold(siege,siegePoints);
 		}
 
-		TownyUniverse.getInstance().getDataSource().saveSiege(siege);
+		universe.getDataSource().saveSiege(siege);
 
 		//Send messages to siege participants
 		String residentInformationString;

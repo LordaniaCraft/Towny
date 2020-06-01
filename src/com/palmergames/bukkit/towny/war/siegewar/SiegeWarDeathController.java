@@ -45,6 +45,13 @@ public class SiegeWarDeathController {
 			TownyUniverse universe = TownyUniverse.getInstance();
 			Resident deadResident = universe.getDataSource().getResident(deadPlayer.getName());
 
+			//need to swap this for combat tag
+			Player killerPlayer = playerDeathEvent.getEntity().getKiller();
+			Resident killerResident = universe.getDataSource().getResident(killerPlayer.getName());
+			if (!universe.getPermissionSource().has(killerResident, PermissionNodes.TOWNY_NATION_SIEGE_POINTS)
+				|| !universe.getPermissionSource().has(killerResident, PermissionNodes.TOWNY_TOWN_SIEGE_POINTS)
+			)  return;
+						
 			if (!deadResident.hasTown())
 				return;
 
@@ -57,7 +64,7 @@ public class SiegeWarDeathController {
 			//If resident was a defending guard, award siege points
 			if(deadResidentTown.hasSiege()
 				&& deadResidentTown.getSiege().getStatus().isActive()
-				&& universe.getPermissionSource().testPermission(deadPlayer, PermissionNodes.TOWNY_TOWN_SIEGE_POINTS.getNode())
+//				&& universe.getPermissionSource().testPermission(deadPlayer, PermissionNodes.TOWNY_TOWN_SIEGE_POINTS.getNode())
 			) {
 				boolean pointsAwarded = SiegeWarPointsUtil.awardPointsIfPlayerIsInDeathPointZone(
 					false,
@@ -74,7 +81,7 @@ public class SiegeWarDeathController {
 
 			//If resident was a defending soldier, award siege points
 			if (deadResidentTown.hasNation()
-				&& universe.getPermissionSource().testPermission(deadPlayer, PermissionNodes.TOWNY_NATION_SIEGE_POINTS.getNode())
+//				&& universe.getPermissionSource().testPermission(deadPlayer, PermissionNodes.TOWNY_NATION_SIEGE_POINTS.getNode())
 			) {
 				for (Siege siege : universe.getDataSource().getSieges()) {
 
@@ -109,7 +116,7 @@ public class SiegeWarDeathController {
 
 			//If resident was an attacking soldier, award siege points
 			if (deadResidentTown.hasNation()
-				&& universe.getPermissionSource().testPermission(deadPlayer, PermissionNodes.TOWNY_NATION_SIEGE_POINTS.getNode())
+//				&& universe.getPermissionSource().testPermission(deadPlayer, PermissionNodes.TOWNY_NATION_SIEGE_POINTS.getNode())
 			) {
 				for (Siege siege : universe.getDataSource().getSieges()) {
 

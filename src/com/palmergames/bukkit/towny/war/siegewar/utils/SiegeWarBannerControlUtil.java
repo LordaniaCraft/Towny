@@ -114,6 +114,7 @@ public class SiegeWarBannerControlUtil {
 						continue;
 					}
 				}
+				TownyMessaging.sendMsg(resident,"You do not have the right rank to capture the banner");
 			}
 		} catch (Exception e) {
 			System.out.println("Problem evaluating new banner control sessions");
