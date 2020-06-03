@@ -22,6 +22,7 @@ import com.palmergames.bukkit.util.BukkitTools;
 import com.palmergames.bukkit.util.ChatTools;
 import com.palmergames.bukkit.util.Colors;
 import com.palmergames.util.StringMgmt;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 
 import java.math.BigDecimal;
@@ -448,6 +449,7 @@ public class TownyFormatter {
 					Siege siege = town.getSiege();
 
 					switch (siege.getStatus()) {
+						// put paused in here
 						case IN_PROGRESS:
 							//Siege:
 							String siegeStatus = String.format(TownySettings.getLangString("status_town_siege_status"), getStatusTownSiegeSummary(siege));
@@ -485,7 +487,43 @@ public class TownyFormatter {
 								out.addAll(ChatTools.listArr(bannerControllingResidents, String.format(TownySettings.getLangString("status_town_banner_control"), siege.getBannerControllingSide().getFormattedName(), siege.getBannerControllingResidents().size())));
 							}
 							break;
+						case PAUSED:
+							//Siege:
+							siegeStatus = String.format(TownySettings.getLangString("status_town_siege_status"), getStatusTownSiegeSummary(siege));
+							out.add(siegeStatus);
 
+							// > Banner XYZ: {2223,82,9877}
+							out.add(
+								String.format(
+									TownySettings.getLangString("status_town_siege_status_banner_xyz"),
+									siege.getFlagLocation().getBlockX(),
+									siege.getFlagLocation().getBlockY(),
+									siege.getFlagLocation().getBlockZ())
+							);
+
+							// > Attacker: Land of Empire (Nation) {+30}
+							pointsInt = siege.getSiegePoints();
+							pointsString = pointsInt > 0 ? "+" + pointsInt : "" + pointsInt;
+							out.add(String.format(TownySettings.getLangString("status_town_siege_status_besieger"), siege.getAttackingNation().getFormattedName(), pointsString));
+
+							// >  Victory Timer: 5.3 hours
+							victoryTimer = String.format(TownySettings.getLangString("status_town_siege_pause_timer"), siege.getFormattedHoursUntilScheduledCompletion());
+							out.add(victoryTimer);
+
+							// > Banner Control: Attackers [4] Killbot401x, NerfeyMcNerferson, WarCriminal80372
+							if (siege.getBannerControllingSide() == SiegeSide.NOBODY) {
+								out.add(String.format(TownySettings.getLangString("status_town_banner_control_nobody"), siege.getBannerControllingSide().getFormattedName()));
+							} else {
+								String[] bannerControllingResidents = getFormattedNames(siege.getBannerControllingResidents());
+								if (bannerControllingResidents.length > 34) {
+									String[] entire = bannerControllingResidents;
+									bannerControllingResidents = new String[36];
+									System.arraycopy(entire, 0, bannerControllingResidents, 0, 35);
+									bannerControllingResidents[35] = TownySettings.getLangString("status_town_reslist_overlength");
+								}
+								out.addAll(ChatTools.listArr(bannerControllingResidents, String.format(TownySettings.getLangString("status_town_banner_control"), siege.getBannerControllingSide().getFormattedName(), siege.getBannerControllingResidents().size())));
+							}
+							break;
 						case ATTACKER_WIN:
 						case DEFENDER_SURRENDER:
 							siegeStatus = String.format(TownySettings.getLangString("status_town_siege_status"), getStatusTownSiegeSummary(siege));
@@ -654,6 +692,8 @@ public class TownyFormatter {
 	
 	private static String getStatusTownSiegeSummary(Siege siege) {
 		switch(siege.getStatus()) {
+			case PAUSED:
+				return "Paused";
 			case IN_PROGRESS:
 				return TownySettings.getLangString("status_town_siege_status_in_progress");
 			case ATTACKER_WIN:

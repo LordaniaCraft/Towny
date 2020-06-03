@@ -68,7 +68,9 @@ public class SiegeWarTimerTaskController {
 					SiegeWarSiegeCompletionUtil.updateSiegeValuesToComplete(siege, SiegeStatus.ATTACKER_ABANDON);
 				}
 				break;
-
+			case PAUSED:
+				SiegeWarSiegeCompletionUtil.updateSiegeValuesToComplete(siege, SiegeStatus.PAUSED);
+				break;
 			default:
 				//Siege is inactive
 				//Wait for siege immunity timer to end then delete siege

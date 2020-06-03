@@ -21,10 +21,10 @@ public class SiegeWarSiegeCompletionUtil {
 												   SiegeStatus siegeStatus) {
 		//Update values
 		siege.setStatus(siegeStatus);
-		siege.setActualEndTime(System.currentTimeMillis());
-		SiegeWarTimeUtil.activateSiegeImmunityTimer(siege.getDefendingTown(), siege);
+		if (siegeStatus != SiegeStatus.CANCELED) SiegeWarTimeUtil.activateSiegeImmunityTimer(siege.getDefendingTown(), siege);
 		if(siegeStatus == SiegeStatus.DEFENDER_SURRENDER || siegeStatus == SiegeStatus.ATTACKER_WIN) {
 			SiegeWarTimeUtil.activateRevoltImmunityTimer(siege.getDefendingTown()); //Prevent immediate revolt
+			siege.setActualEndTime(System.currentTimeMillis());
 		}
 
 		//Save to db

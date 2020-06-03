@@ -16,7 +16,9 @@ public enum SiegeStatus {
 	DEFENDER_SURRENDER(false), 
 	PENDING_ATTACKER_ABANDON(true), 
 	PENDING_DEFENDER_SURRENDER(true), 
-	UNKNOWN(false);
+	UNKNOWN(false),
+	CANCELED(false),
+	PAUSED(false);
 
     private boolean active;
     
@@ -40,6 +42,10 @@ public enum SiegeStatus {
 				return PENDING_ATTACKER_ABANDON;
 			case "PENDING_DEFENDER_SURRENDER":
 				return PENDING_DEFENDER_SURRENDER;
+			case "PAUSED":
+				return PAUSED;
+			case "CANCELED":
+				return CANCELED;
             default:
                 return UNKNOWN;
         }

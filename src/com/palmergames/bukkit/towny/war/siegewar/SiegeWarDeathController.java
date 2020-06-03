@@ -47,6 +47,7 @@ public class SiegeWarDeathController {
 
 			//need to swap this for combat tag
 			Player killerPlayer = playerDeathEvent.getEntity().getKiller();
+			if (killerPlayer == null) return;
 			Resident killerResident = universe.getDataSource().getResident(killerPlayer.getName());
 			if (!universe.getPermissionSource().has(killerResident, PermissionNodes.TOWNY_NATION_SIEGE_POINTS)
 				|| !universe.getPermissionSource().has(killerResident, PermissionNodes.TOWNY_TOWN_SIEGE_POINTS)
