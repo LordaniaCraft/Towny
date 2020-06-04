@@ -103,7 +103,7 @@ public class SiegeCommand implements CommandExecutor {
 				case "tp": {
 					if (args.length < 2) throw new CMDError("You have not specified siege to teleport to");
 					Siege siege = doesSiegeExist(args[1]);
-					if (siege == null) throw new CMDError("That siege doesn not exist");
+					if (siege == null) throw new CMDError("That siege doesn't not exist");
 					message.add(prefix +
 						ChatColor.GOLD + "Teleporting to " +
 						ChatColor.AQUA + siege.getName() +

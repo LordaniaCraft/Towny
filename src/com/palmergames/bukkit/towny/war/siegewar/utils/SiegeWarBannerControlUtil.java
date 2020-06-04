@@ -77,8 +77,6 @@ public class SiegeWarBannerControlUtil {
 					if(siege.getBannerControllingSide() == SiegeSide.DEFENDERS && siege.getBannerControllingResidents().contains(resident)) {
 						continue; //Player already defending
 					}
-					getLogger().info("total banner control: " + (siege.getBannerControllingResidents().size() + siege.getBannerControlSessions().size()));
-					getLogger().info("banner controle sessions setting: " + TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints());
 					addNewBannerControlSession(siege, player, resident, SiegeSide.DEFENDERS);
 					continue;
 
@@ -94,8 +92,6 @@ public class SiegeWarBannerControlUtil {
 							continue; //Player already defending
 						}
 
-						getLogger().info("total banner control: " + (siege.getBannerControllingResidents().size() + siege.getBannerControlSessions().size()));
-						getLogger().info("banner controle sessions setting: " + TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints());
 						addNewBannerControlSession(siege, player, resident, SiegeSide.DEFENDERS);
 						continue;
 					}
@@ -108,8 +104,6 @@ public class SiegeWarBannerControlUtil {
 							continue; //Player already attacking
 						}
 
-						getLogger().info("total banner control: " + (siege.getBannerControllingResidents().size() + siege.getBannerControlSessions().size()));
-						getLogger().info("banner control sessions setting: " + TownySettings.getWarSiegeMaxPlayersPerSideForTimedPoints());
 						addNewBannerControlSession(siege, player, resident, SiegeSide.ATTACKERS);
 						continue;
 					}
@@ -261,7 +255,6 @@ public class SiegeWarBannerControlUtil {
 		switch(siege.getBannerControllingSide()) {
 			case ATTACKERS:
 				//Adjust siege points
-//				getLogger().info("given attacker points");
 				siegePoints = siege.getBannerControllingResidents().size() * TownySettings.getWarSiegePointsForAttackerOccupation();
 				siegePoints = SiegeWarPointsUtil.adjustSiegePointsForPopulationQuotient(true, siegePoints, siege);
 				hasSiegeReachedPointThreshold(siege,siegePoints);
@@ -281,7 +274,6 @@ public class SiegeWarBannerControlUtil {
 				TownyUniverse.getInstance().getDataSource().saveSiege(siege);
 			break;
 			case DEFENDERS:
-//				getLogger().info("given defender points");
 				//Adjust siege points
 				siegePoints = -(siege.getBannerControllingResidents().size() * TownySettings.getWarSiegePointsForDefenderOccupation());
 				siegePoints = SiegeWarPointsUtil.adjustSiegePointsForPopulationQuotient(false, siegePoints, siege);
@@ -309,19 +301,16 @@ public class SiegeWarBannerControlUtil {
 		}
 		
 		//Remove banner control if 
-		//1. All players on the list are logged out, or
-		//2. The list is now empty
-		boolean bannerControlLost = true;
+		//A player on the list are logged out
 		for(Resident resident: siege.getBannerControllingResidents()) {
 			Player player = TownyAPI.getInstance().getPlayer(resident);
-			if(player != null) {
-				bannerControlLost = false;
-				break;
+			if(player == null) {
+				siege.removeBannerControllingResident(resident);
 			}
 		}
-		if(bannerControlLost) {
+		if(siege.getBannerControllingResidents().isEmpty()) {
 			siege.setBannerControllingSide(SiegeSide.NOBODY);
-			siege.clearBannerControllingResidents();
+//			siege.clearBannerControllingResidents();
 		}
 	}
 }
