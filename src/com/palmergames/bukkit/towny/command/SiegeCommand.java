@@ -67,7 +67,7 @@ public class SiegeCommand implements CommandExecutor {
 					if (siege == null) throw new CMDError("You are not near a siege");
 					if (siege.getStatus() != SiegeStatus.PAUSED) throw new CMDError("That siege is not paused");
 					siege.setStatus(SiegeStatus.IN_PROGRESS);
-					siege.setScheduledEndTime((long) (System.currentTimeMillis() + siege.getPausedTimeLeft()));
+//					siege.setScheduledEndTime((long) (System.currentTimeMillis() + siege.getPausedTimeLeft()));
 					message.add(prefix + ChatColor.GOLD + "You have Resumed " + ChatColor.AQUA + siege.getName());
 					break;
 				}

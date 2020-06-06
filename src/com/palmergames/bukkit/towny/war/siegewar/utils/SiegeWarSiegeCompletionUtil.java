@@ -32,3 +32,4 @@ public class SiegeWarSiegeCompletionUtil {
 		TownyUniverse.getInstance().getDataSource().saveTown(siege.getDefendingTown());
 	}
 }
+ 
