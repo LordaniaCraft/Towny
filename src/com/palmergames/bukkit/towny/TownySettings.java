@@ -2824,6 +2824,10 @@ public class TownySettings {
 	public static int getMaxTownsPerNation() {
 		return getInt(ConfigNodes.GNATION_SETTINGS_MAX_TOWNS_PER_NATION);
 	}
+
+	public static boolean getCanNationsBePublicAndOpen() {
+		return getBoolean(ConfigNodes.GNATION_SETTINGS_NATIONS_CAN_BE_PUBLIC_OR_OPEN);
+	}
 	
 	public static double getSpawnTravelCost() {
 		return getDouble(ConfigNodes.ECO_PRICE_TOWN_SPAWN_TRAVEL_PUBLIC);
