@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 
 import static com.palmergames.util.TimeMgmt.ONE_HOUR_IN_MILLIS;
+import static org.bukkit.Bukkit.getLogger;
 
 /**
  * This class represents a "Siege".
@@ -42,7 +43,7 @@ public class Siege {
     private long startTime;           //Start of siege
     private long scheduledEndTime;    //Scheduled end of siege
     private long actualEndTime;       //Actual end time of siege
-	private double pausedTimeLeft;
+	private long pausedTimeLeft;
 	private double totalPillageAmount;     //The total amount pillaged so far from the town
 	private Location siegeBannerLocation;
 	private int siegePoints;
@@ -129,12 +130,13 @@ public class Siege {
         return scheduledEndTime - System.currentTimeMillis();
     }
 
-    public double getPausedTimeLeft() {
+    public long getPausedTimeLeft() {
 		return pausedTimeLeft;
 	}
 
-	public void setPausedTimeLeft() {
-		this.pausedTimeLeft = getTimeUntilCompletionMillis();
+	public void setPausedTimeLeft(long pausedTimeLeft) {
+		getLogger().info("remaining time when paused: " + (getScheduledEndTime() - System.currentTimeMillis()) );
+		this.pausedTimeLeft = pausedTimeLeft;
 	}
 
 	public String getFormattedHoursUntilScheduledCompletion() {

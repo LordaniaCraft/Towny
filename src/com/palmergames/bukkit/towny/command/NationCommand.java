@@ -2728,15 +2728,19 @@ public class NationCommand extends BaseCommand implements CommandExecutor {
 				} catch (Exception e) {
 					TownyMessaging.sendErrorMsg(player, e.getMessage());
 				}
-			} else if(split[0].equalsIgnoreCase("public") && TownySettings.getCanNationsBePublicAndOpen() ){
-                if (!townyUniverse.getPermissionSource().testPermission(player, PermissionNodes.TOWNY_COMMAND_NATION_TOGGLE_PUBLIC.getNode()))
+			} else if(split[0].equalsIgnoreCase("public")){
+                if (!townyUniverse.getPermissionSource().testPermission(player, PermissionNodes.TOWNY_COMMAND_NATION_TOGGLE_PUBLIC.getNode())
+					|| !TownySettings.getCanNationsBePublicAndOpen()
+				)
                     throw new TownyException(TownySettings.getLangString("msg_err_command_disable"));
 
                 nation.setPublic(!nation.isPublic());
                 TownyMessaging.sendPrefixedNationMessage(nation, String.format(TownySettings.getLangString("msg_nation_changed_public"), nation.isPublic() ? TownySettings.getLangString("enabled") : TownySettings.getLangString("disabled")));
 
-            } else if(split[0].equalsIgnoreCase("open" ) && TownySettings.getCanNationsBePublicAndOpen()){
-                if (!townyUniverse.getPermissionSource().testPermission(player, PermissionNodes.TOWNY_COMMAND_NATION_TOGGLE_PUBLIC.getNode()))
+            } else if(split[0].equalsIgnoreCase("open")){
+                if (!townyUniverse.getPermissionSource().testPermission(player, PermissionNodes.TOWNY_COMMAND_NATION_TOGGLE_PUBLIC.getNode())
+					|| !TownySettings.getCanNationsBePublicAndOpen()
+				)
                     throw new TownyException(TownySettings.getLangString("msg_err_command_disable"));
 
                 nation.setOpen(!nation.isOpen());

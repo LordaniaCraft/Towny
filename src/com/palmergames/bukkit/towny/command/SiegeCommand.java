@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.apache.commons.lang.WordUtils.capitalizeFully;
+import static org.bukkit.Bukkit.getLogger;
 
 public class SiegeCommand implements CommandExecutor {
 	@Override
@@ -58,7 +59,7 @@ public class SiegeCommand implements CommandExecutor {
 					if (siege.getStatus() != SiegeStatus.IN_PROGRESS)
 						throw new CMDError("That siege is not in progress");
 					siege.setStatus(SiegeStatus.PAUSED);
-					siege.setPausedTimeLeft();
+					siege.setPausedTimeLeft(siege.getScheduledEndTime() - System.currentTimeMillis());
 					message.add(prefix + ChatColor.GOLD + "You have Paused " + ChatColor.AQUA + siege.getName());
 					break;
 				}
@@ -67,7 +68,7 @@ public class SiegeCommand implements CommandExecutor {
 					if (siege == null) throw new CMDError("You are not near a siege");
 					if (siege.getStatus() != SiegeStatus.PAUSED) throw new CMDError("That siege is not paused");
 					siege.setStatus(SiegeStatus.IN_PROGRESS);
-//					siege.setScheduledEndTime((long) (System.currentTimeMillis() + siege.getPausedTimeLeft()));
+					siege.setScheduledEndTime(Long.sum(System.currentTimeMillis(), siege.getPausedTimeLeft()));
 					message.add(prefix + ChatColor.GOLD + "You have Resumed " + ChatColor.AQUA + siege.getName());
 					break;
 				}

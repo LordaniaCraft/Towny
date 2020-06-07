@@ -1423,6 +1423,10 @@ public final class TownyFlatFileSource extends TownyDatabaseHandler {
 				line = keys.get("scheduledEndTime");
 				siege.setScheduledEndTime(Long.parseLong(line));
 
+				line = keys.get("pausedTimeLeft");
+				if (line != null) {
+					siege.setPausedTimeLeft(Long.parseLong(line));
+				}
 				line = keys.get("actualEndTime");
 				siege.setActualEndTime(Long.parseLong(line));
 
@@ -2339,6 +2343,7 @@ public final class TownyFlatFileSource extends TownyDatabaseHandler {
 		list.add("actualStartTime=" + siege.getStartTime());
 		list.add("scheduledEndTime=" + siege.getScheduledEndTime());
 		list.add("actualEndTime=" + siege.getActualEndTime());
+		list.add("pausedTimeLeft=" + siege.getPausedTimeLeft());
 		list.add("totalPillageAmount=" + siege.getTotalPillageAmount());
 		list.add("residentTotalTimedPointsMap=" + StringMgmt.join(siege.getResidentTotalTimedPointsMap(), ":" ,","));
 
